@@ -1,0 +1,37 @@
+
+//This code will activate a stepper motor with help of a LIDAR device and show the output on an OLED screen.
+#include<Adafruit_SSD1306.h>
+#include<Adafruit_GFX.h>
+#include<SoftwareSerial.h>
+#include<Wire.h>
+#include "TFMini.h"
+#include<Stepper.h>
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+int Step_per_rev = 200;
+TFMini tfmini;
+Stepper stp(Step_per_rev,11,12,10,9);
+SoftwareSerial myser(7,8);
+void setup() {
+  // put your setup code here, to run once:
+  Wire.begin();
+  display.begin(SSD1306_SWITCHCAPVCC,0x3D);
+  while (!Serial);  
+  myser.begin(TFMINI_BAUDRATE);
+  tfmini.begin(&myser);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  float d = tfmini.getDistance();
+  float i = d*100;
+  stp.setSpeed(i);
+  stp.step(Step_per_rev/2);
+  display.setCursor(0,0);
+  display.print(d);
+  display.print("centimeters");
+  display.display();
+}
